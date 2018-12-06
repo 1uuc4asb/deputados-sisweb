@@ -1,0 +1,59 @@
+html, body{
+  height: 100%;
+}
+body { 
+	background-image: url("../_imgs/bg.jpg") ;
+	background-position: center center;
+	background-repeat:  no-repeat;
+	background-attachment: fixed;
+	background-size:  cover;
+	background-color: #999;
+	text-align: center;
+}
+
+h1 {
+	font-family: melhortrabalhodenovo;
+	color: white;
+	text-shadow: 5px 5px 5px #000000;
+	font-size: 3em;
+}
+
+#deplist {
+	border-radius: 5px;
+	background-color: rgb(255,255,255,0.8);
+	padding: 1em;
+	text-align: left;
+}
+
+.deplist-item {
+	padding: .3em;
+	border-radius: 5px;
+	background-image: url("../_imgs/item.jpg");
+	background-position: center center;
+	background-repeat:  no-repeat;
+	background-size:  cover;
+	background-color: #999;
+	margin-bottom: 1em;
+	vertical-align: top;
+}
+
+.deplist-item>img {
+	border-radius: 5px;
+}
+
+#deplistimg {
+	border-radius: 5px;
+}
+#details {
+	height: 3em;
+	float: right;
+}
+
+.resumo {
+	top: 1em;
+}
+
+@font-face {
+	font-family: melhortrabalhodenovo;
+	src: url("../_fonts/black_chancery/BLKCHCRY.TTF");
+}
