@@ -156,7 +156,8 @@ $(document).ready(function () {
 				        var data = new google.visualization.DataTable();
 				        data.addColumn('date', 'Data');
 				        data.addColumn('number', 'Valor do documento');
-				        data.addColumn({type: 'string', role: 'tooltip'});
+				        data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
+                        //data.addColumn({type:'string', role:'annotationText'});
 				        var linhas = [];
 				        for(let i=0; i<msg.dados.length;i++) {
 				        	let dia,mes,ano;
@@ -168,17 +169,18 @@ $(document).ready(function () {
 				        	let linha = [];
 				        	linha.push(new Date(ano,mes,dia)); // data do documento
 				        	linha.push(valor); // Valor do documento
-				        	let descricao = "Sem descrição por enquanto...";
+				        	let descricao = "<div style=\"margin: 0.5em;\"><b>Data do documento</b>: " + (new Date(ano,mes,dia)).toLocaleDateString() + "<br/><b>Valor do documento</b>: " + valor + "</div>";
 				        	linha.push(descricao); // Descrição geral da parada
 				        	linhas.push(linha);
 				        }
 				        console.log(linhas);
-				        linhas	.sort(function(a,b){return a[0].getTime() - b[0].getTime()});
+				        linhas.sort(function(a,b){return a[0].getTime() - b[0].getTime()});
 				        data.addRows(linhas);
 
 				        var chart = new google.visualization.LineChart(document.getElementById('despesas' + id));
 
 				        var options = {
+                            tooltip: {isHtml: true},
 				        	pointSize: 3,
 				          	displayAnnotations: true
 				        };
