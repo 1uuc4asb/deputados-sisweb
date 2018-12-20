@@ -32,15 +32,31 @@ $(document).ready(function () {
 	});
 
 	function buscarDeputados () {
+		$("#deputados").css("display","block");
+		$("#deputados").html("Buscando deputados");
+		var interval = setInterval(function () {
+			if($("#deputados").html() == "Buscando deputados") {
+				$("#deputados").html("Buscando deputados.");
+			}
+			else if($("#deputados").html() == "Buscando deputados.") {
+				$("#deputados").html("Buscando deputados..");
+			}
+			else if($("#deputados").html() == "Buscando deputados..") {
+				$("#deputados").html("Buscando deputados...");
+			}
+			else if($("#deputados").html() == "Buscando deputados...") {
+				$("#deputados").html("Buscando deputados");
+			}
+		}, 500);
 		$.ajax({
 			method: "GET",
 			url: "https://dadosabertos.camara.leg.br/api/v2/deputados",
 			data: { nome: $("#deputado").val().trim() },
 			dataType: "json"
 		}).done(function (msg) {
+			clearInterval(interval);
 			console.log(msg);
 			var result = msg.dados;
-			
 			if(result.length == 0) {
 				$("#deputados").html("Desculpe. Nenhum deputado foi encontrado com este nome");
 			}
@@ -61,6 +77,21 @@ $(document).ready(function () {
 	function detalhesDeputado (id,detalhes) {
 		console.log("aa");
 		// Detalhes civis
+		detalhes.html("Carregando conteúdo");
+		var interval = setInterval(function () {
+			if(detalhes.html() == "Carregando conteúdo") {
+				detalhes.html("Carregando conteúdo.");
+			}
+			else if(detalhes.html() == "Carregando conteúdo.") {
+				detalhes.html("Carregando conteúdo..");
+			}
+			else if(detalhes.html() == "Carregando conteúdo..") {
+				detalhes.html("Carregando conteúdo...");
+			}
+			else if(detalhes.html() == "Carregando conteúdo...") {
+				detalhes.html("Carregando conteúdo");
+			}
+		}, 500);
 		$.ajax({
 			method: "GET",
 			url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id,
@@ -71,9 +102,9 @@ $(document).ready(function () {
 			let id_do_canditado = msg.dados.id;
 			let municipio = msg.dados.municipioNascimento;
 			let uf = msg.dados.ufNascimento;
-			let conteudo = "<h2> Dado civis do deputado </h2><div> Nome civil: " + nome + " <br/>Número de identificação do candidato: " + id_do_canditado +
+			var conteudo = "<h2> Dado civis do deputado </h2><div> Nome civil: " + nome + " <br/>Número de identificação do candidato: " + id_do_canditado +
 			"<br/>Estado de nascimento: " + uf + "<br/>Municipio de nascimento: " + municipio + "</div>";
-			detalhes.append(conteudo);
+			//detalhes.append(conteudo);
 			// Eventos
 
 			$.ajax({
@@ -82,7 +113,7 @@ $(document).ready(function () {
 				dataType: "json"
 			}).done(function (msg) {
 				console.log("Eventos: " , msg);
-				var conteudo = "<h2> Eventos que o(a) deputado(a) participou: </h2><div>";
+				conteudo += "<h2> Eventos que o(a) deputado(a) participou: </h2><div>";
 				for(let i=0; i<msg.dados.length; i++) {
 					var data,titulo,descricaoTipo,local,orgaos = "Não informado na base de dados";
 					
@@ -105,21 +136,58 @@ $(document).ready(function () {
 					orgaos += "</div>";
 					conteudo += "<div>Evento: " + titulo + "<br/>Tipo de evento: " + descricaoTipo + "<br/>Data do evento: " + data + "<br/>Local do evento: " + local + "<br/>" + orgaos + "<br/>";
 				}
-				detalhes.append(conteudo);
+				clearInterval(interval);
+				detalhes.html(conteudo);
+
+				// Despesas
+
+				$.ajax({
+					method: "GET",
+					url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/despesas",
+					dataType: "json"
+				}).done(function (msg) {
+					console.log("Depesas: " , msg);
+					// Gerar grafico a partir das despesas
+					conteudo = "<h2> Despesas do deputado </h2><div id=\"despesas" + id + "\"></div>";
+					detalhes.append(conteudo);
+					google.charts.load('current', {'packages':['annotationchart']});
+		      		google.charts.setOnLoadCallback(drawChart);
+		      		function drawChart() {
+				        var data = new google.visualization.DataTable();
+				        data.addColumn('date', 'Data');
+				        data.addColumn('number', 'Valor do documento');
+				        data.addColumn({type: 'string', role: 'tooltip'});
+				        var linhas = [];
+				        for(let i=0; i<msg.dados.length;i++) {
+				        	let dia,mes,ano;
+				        	dia = msg.dados[i].dataDocumento.substring(8);
+				        	mes = msg.dados[i].dataDocumento.substring(5,7);
+				        	ano = msg.dados[i].dataDocumento.substring(0,4);
+				        	let valor = msg.dados[i].valorDocumento;
+				        	console.log(dia + mes + ano);
+				        	let linha = [];
+				        	linha.push(new Date(ano,mes,dia)); // data do documento
+				        	linha.push(valor); // Valor do documento
+				        	let descricao = "Sem descrição por enquanto...";
+				        	linha.push(descricao); // Descrição geral da parada
+				        	linhas.push(linha);
+				        }
+				        console.log(linhas);
+				        linhas	.sort(function(a,b){return a[0].getTime() - b[0].getTime()});
+				        data.addRows(linhas);
+
+				        var chart = new google.visualization.LineChart(document.getElementById('despesas' + id));
+
+				        var options = {
+				        	pointSize: 3,
+				          	displayAnnotations: true
+				        };
+
+				        chart.draw(data, options);
+				      }
+				});
+
 			});
-		});
-
-		
-
-		// Despesas
-
-		$.ajax({
-			method: "GET",
-			url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/despesas",
-			dataType: "json"
-		}).done(function (msg) {
-			console.log("Depesas: " , msg);
-			// Gerar grafico a partir das despesas
 		});
 
 		
@@ -154,29 +222,6 @@ $(document).ready(function () {
 			console.log("situacoesDeputado: " , msg);
 		});
 	}
-
-	google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
-
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ]);
-
-        var options = {
-          title: 'Company Performance',
-          curveType: 'function',
-          legend: { position: 'bottom' }
-        };
-
-        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-
-        chart.draw(data, options);
-      }
 
 
 });

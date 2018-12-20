@@ -25,6 +25,17 @@ h1 {
 	text-align: left;
 }
 
+#deputados {
+	border-radius: 5px;
+	padding: 0px;
+	background-image: url("../_imgs/item.jpg");
+	background-position: center center;
+	background-repeat:  no-repeat;
+	background-size:  cover;
+	background-color: #999;
+	vertical-align: top;
+}
+
 .deplist-item {
 	padding: .3em;
 	border-radius: 5px;
