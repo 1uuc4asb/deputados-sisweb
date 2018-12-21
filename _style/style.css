@@ -20,28 +20,50 @@ h1 {
 
 #deplist {
 	border-radius: 5px;
-	background-color: rgb(255,255,255,0.8);
+	background-color: transparent;
 	padding: 1em;
 	text-align: left;
+	box-shadow: 1em 0em 2em;
+}
+
+#searchmoment {
+	background: white;
+	border-radius: 5px;
+	padding: 0.1em;
+	box-shadow: 1em 0em 2em;
+}
+
+.eventos {
+	border: solid;
+	border-radius: 5px;
+	padding: 1em;
+	margin: 0.5em;
+}
+
+.orgaos {
+	border: solid;
+	border-radius: 5px;
+	padding: 1em;
+	margin: 0.5em;
 }
 
 #deputados {
 	border-radius: 5px;
 	padding: 0px;
-	background-image: url("../_imgs/item.jpg");
 	background-position: center center;
 	background-repeat:  no-repeat;
 	background-size:  cover;
-	background-color: #999;
+	background-color: transparent;
 	vertical-align: top;
 }
 
 .deplist-item {
 	padding: .3em;
 	border-radius: 5px;
-	background-image: url("../_imgs/item.jpg");
+	background-image: url("../_imgs/buss.png");
 	background-position: center center;
 	background-repeat:  no-repeat;
+	background-attachment: fixed;
 	background-size:  cover;
 	background-color: #999;
 	margin-bottom: 1em;

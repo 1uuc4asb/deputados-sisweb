@@ -33,19 +33,19 @@ $(document).ready(function () {
 
 	function buscarDeputados () {
 		$("#deputados").css("display","block");
-		$("#deputados").html("Buscando deputados");
+		$("#deputados").html("<div id=\"searchmoment\">Buscando deputados</div>");
 		var interval = setInterval(function () {
-			if($("#deputados").html() == "Buscando deputados") {
-				$("#deputados").html("Buscando deputados.");
+			if($("#deputados").html() == "<div id=\"searchmoment\">Buscando deputados</div>") {
+				$("#deputados").html("<div id=\"searchmoment\">Buscando deputados</div>.");
 			}
-			else if($("#deputados").html() == "Buscando deputados.") {
-				$("#deputados").html("Buscando deputados..");
+			else if($("#deputados").html() == "<div id=\"searchmoment\">Buscando deputados</div>.") {
+				$("#deputados").html("<div id=\"searchmoment\">Buscando deputados</div>..");
 			}
-			else if($("#deputados").html() == "Buscando deputados..") {
-				$("#deputados").html("Buscando deputados...");
+			else if($("#deputados").html() == "<div id=\"searchmoment\">Buscando deputados</div>..") {
+				$("#deputados").html("<div id=\"searchmoment\">Buscando deputados</div>...");
 			}
-			else if($("#deputados").html() == "Buscando deputados...") {
-				$("#deputados").html("Buscando deputados");
+			else if($("#deputados").html() == "<div id=\"searchmoment\">Buscando deputados</div>...") {
+				$("#deputados").html("<div id=\"searchmoment\">Buscando deputados</div>");
 			}
 		}, 500);
 		$.ajax({
@@ -58,13 +58,13 @@ $(document).ready(function () {
 			console.log(msg);
 			var result = msg.dados;
 			if(result.length == 0) {
-				$("#deputados").html("Desculpe. Nenhum deputado foi encontrado com este nome");
+				$("#deputados").html("<div id=\"searchmoment\">Desculpe. Nenhum deputado foi encontrado com este nome</div>");
 			}
 			else {
 				var listahtml = "<ul id=\"deplist\" style=\"list-style-type:none\">";
 				for(let i=0;i<result.length; i++) {
-					listahtml += "<li id=\"" + result[i].id + "\" class=\"deplist-item\"> <img class=\"depimg\" src=\"" + 
-					result[i].urlFoto + "\"/> <span class=\"resumo\"> Deputado: " + result[i].nome + " Partido: " + result[i].siglaPartido +
+					listahtml += "<li id=\"" + result[i].id + "\" class=\"deplist-item\">" + (result[i].urlFoto? "<img class=\"depimg\" src=\"" + 
+					result[i].urlFoto + "\"/>": "Foto indísponível.") + "<span class=\"resumo\"> Deputado: " + (result[i].nome? result[i].nome : "Nome indíspónível") + " Partido: " + result[i].siglaPartido +
 					 " Estado: " + result[i].siglaUf + "</span> <input class=\"details\" type=\"image\" src=\"_imgs/arrow.png\" /> <br/> <div class=\"details-div\" style=\"box-shadow: 7px 7px 7px; margin: 1em; padding: 1em; display: none; background: white; border-radius: 5px;\"></div> </li>";
 				}
 				listahtml+= "</ul>";
@@ -78,6 +78,7 @@ $(document).ready(function () {
 		console.log("aa");
 		// Detalhes civis
 		detalhes.html("Carregando conteúdo");
+		var nome_eleitoral,conteudotwitter; // Para TWITTER
 		var interval = setInterval(function () {
 			if(detalhes.html() == "Carregando conteúdo") {
 				detalhes.html("Carregando conteúdo.");
@@ -99,11 +100,13 @@ $(document).ready(function () {
 		}).done(function (msg) {
 			console.log("Detalhes" , msg);
 			let nome = msg.dados.nomeCivil;
-			let id_do_canditado = msg.dados.id;
+			let id_do_deputado = msg.dados.id;
 			let municipio = msg.dados.municipioNascimento;
 			let uf = msg.dados.ufNascimento;
-			var conteudo = "<h2> Dado civis do deputado </h2><div> Nome civil: " + nome + " <br/>Número de identificação do candidato: " + id_do_canditado +
-			"<br/>Estado de nascimento: " + uf + "<br/>Municipio de nascimento: " + municipio + "</div>";
+			nome_eleitoral = msg.dados.ultimoStatus.nomeEleitoral;
+			conteudotwitter = "<div style=\"text-align: center;\"><a href=\"http://twitter.com/search?q=" + nome_eleitoral + "\" target=\"_blank\"> Veja os tweets mais recentes relacionados ao deputado! <img style=\"height: 2em;\" src=\"_imgs/twitter.png\" </a></div>";
+			var conteudo = "<h2> Dados civis do(a) deputado(a) </h2><div> <b>Nome civil</b>: " + nome + " <br/><b>Número de identificação do(a) deputado(a)</b>	: " + id_do_deputado +
+			"<br/><b>Estado de nascimento</b>: " + uf + "<br/><b>Municipio de nascimento</b>: " + municipio + "</div>";
 			//detalhes.append(conteudo);
 			// Eventos
 
@@ -129,99 +132,86 @@ $(document).ready(function () {
 					if(msg.dados[i].localCamara.nome && msg.dados[i].localCamara.nome != null) {
 						local = msg.dados[i].localCamara.nome;
 					}
-					var orgaos = "<div>Orgaos do evento:<br/>";
+					var orgaos = "<div><b>Orgaos do evento</b>:<br/>";
 					for(let j=0;j<msg.dados[i].orgaos.length;j++) {
-						orgaos += "Orgao: " + msg.dados[i].orgaos[j].nome + ", Tipo do orgao: " + msg.dados[i].orgaos[j].tipoOrgao + "<br/>";
+						orgaos += "<div class=\"orgaos\"><b>Orgao</b>: " + msg.dados[i].orgaos[j].nome + " - <b>Tipo do orgao</b>: " + msg.dados[i].orgaos[j].tipoOrgao + "<br/></div>";
 					}
 					orgaos += "</div>";
-					conteudo += "<div>Evento: " + titulo + "<br/>Tipo de evento: " + descricaoTipo + "<br/>Data do evento: " + data + "<br/>Local do evento: " + local + "<br/>" + orgaos + "<br/>";
+					conteudo += "<div class=\"eventos\"><b>Evento</b>: " + titulo + "<br/><b>Tipo de evento</b>: " + descricaoTipo + "<br/><b>Data do evento</b>: " + data + "<br/><b>Local do evento</b>: " + local + "<br/>" + orgaos + "<br/></div>";
 				}
-				clearInterval(interval);
-				detalhes.html(conteudo);
 
-				// Despesas
+
+				// Orgaos
 
 				$.ajax({
 					method: "GET",
-					url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/despesas",
+					url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/orgaos",
 					dataType: "json"
 				}).done(function (msg) {
-					console.log("Depesas: " , msg);
-					// Gerar grafico a partir das despesas
-					conteudo = "<h2> Despesas do deputado </h2><div id=\"despesas" + id + "\"></div>";
-					detalhes.append(conteudo);
-					google.charts.load('current', {'packages':['annotationchart']});
-		      		google.charts.setOnLoadCallback(drawChart);
-		      		function drawChart() {
-				        var data = new google.visualization.DataTable();
-				        data.addColumn('date', 'Data');
-				        data.addColumn('number', 'Valor do documento');
-				        data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
-                        //data.addColumn({type:'string', role:'annotationText'});
-				        var linhas = [];
-				        for(let i=0; i<msg.dados.length;i++) {
-				        	let dia,mes,ano;
-				        	dia = msg.dados[i].dataDocumento.substring(8);
-				        	mes = msg.dados[i].dataDocumento.substring(5,7);
-				        	ano = msg.dados[i].dataDocumento.substring(0,4);
-				        	let valor = msg.dados[i].valorDocumento;
-				        	console.log(dia + mes + ano);
-				        	let linha = [];
-				        	linha.push(new Date(ano,mes,dia)); // data do documento
-				        	linha.push(valor); // Valor do documento
-				        	let descricao = "<div style=\"margin: 0.5em;\"><b>Data do documento</b>: " + (new Date(ano,mes,dia)).toLocaleDateString() + "<br/><b>Valor do documento</b>: " + valor + "</div>";
-				        	linha.push(descricao); // Descrição geral da parada
-				        	linhas.push(linha);
-				        }
-				        console.log(linhas);
-				        linhas.sort(function(a,b){return a[0].getTime() - b[0].getTime()});
-				        data.addRows(linhas);
+					console.log("Orgaos: " , msg);
+					conteudo += "<h2>Orgaos dos quais o(a) deputado(a) é/foi um integrante: </h2>";
+					for(let i=0;i<msg.dados.length;i++) {
+						conteudo += "<div class=\"orgaos\"><b>Nome do orgao</b>: " + msg.dados[i].nomeOrgao + "<br/><b>Papel do(a) deputado(a) no orgao</b>: " + msg.dados[i].nomePapel + "<br/><b>Período de participação</b>: " + msg.dados[i].dataInicio + " à " + (msg.dados[i].dataFim? msg.dados[i].dataFim : "Não informado.") + "<br/></div>";
+					}
+					clearInterval(interval);
+					detalhes.html(conteudo);
 
-				        var chart = new google.visualization.LineChart(document.getElementById('despesas' + id));
+					// Despesas
 
-				        var options = {
-                            tooltip: {isHtml: true},
-				        	pointSize: 3,
-				          	displayAnnotations: true
-				        };
+					$.ajax({
+						method: "GET",
+						url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/despesas",
+						dataType: "json"
+					}).done(function (msg) {
+						console.log("Depesas: " , msg);
+						// Gerar grafico a partir das despesas
+						conteudo = "<h2> Despesas do deputado </h2><h3>(Passe o mouse pelos pontos para ver as despesas detalhadamente)</h3><div id=\"despesas" + id + "\"></div>";
+						detalhes.append(conteudo);
+						google.charts.load('current', {'packages':['annotationchart']});
+			      		google.charts.setOnLoadCallback(drawChart);
+			      		function drawChart() {
+					        var data = new google.visualization.DataTable();
+					        data.addColumn('date', 'Data');
+					        data.addColumn('number', 'Despesas');
+					        data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
+	                        //data.addColumn({type:'string', role:'annotationText'});
+					        var linhas = [];
+					        for(let i=0; i<msg.dados.length;i++) {
+					        	let dia,mes,ano;
+					        	dia = msg.dados[i].dataDocumento.substring(8);
+					        	mes = msg.dados[i].dataDocumento.substring(5,7);
+					        	ano = msg.dados[i].dataDocumento.substring(0,4);
+					        	let valor = msg.dados[i].valorDocumento;
+					        	let linha = [];
+					        	linha.push(new Date(ano,mes,dia)); // data do documento
+					        	linha.push(valor); // Valor do documento
+					        	let descricao = "<div style=\"margin: 0.5em;\"><b>Data do documento</b>: " + (new Date(ano,mes,dia)).toLocaleDateString() + "<br/><b>Valor do documento</b>: " + valor + "<br/><b>Valor líquido do documento</b>: " + msg.dados[i].valorLiquido + "<br/><b>Tipo de despesa</b>: " + msg.dados[i].tipoDespesa + "</br><b>Nome do fornecedor</b>: " + msg.dados[i].nomeFornecedor + "<br/><b>CNPJ/CPF do fornecedor</b>: " + msg.dados[i].cnpjCpfFornecedor + "<br/><b>Tipo de documento</b>: " + msg.dados[i].tipoDocumento + "<br/><b>Número do documento</b>: " + msg.dados[i].numDocumento +  "<br/><b>Número do ressarcimento</b>: " + msg.dados[i].numRessarcimento + "<br/></div>";
+					        	linha.push(descricao); // Descrição geral da parada
+					        	linhas.push(linha);
+					        }
+					        linhas.sort(function(a,b){return a[0].getTime() - b[0].getTime()});
+					        data.addRows(linhas);
 
-				        chart.draw(data, options);
-				      }
+					        var chart = new google.visualization.LineChart(document.getElementById('despesas' + id));
+
+					        var options = {
+					        	'legend':'bottom',
+	                            tooltip: {isHtml: true},
+					        	pointSize: 3,
+					          	displayAnnotations: true,
+					        };
+
+					        chart.draw(data, options);
+					      }
+
+						// SUBSTITUIÇÃO DA TWITTER API
+						detalhes.append(conteudotwitter);
+
+					      
+					});
 				});
 
 			});
-		});
-
-		
-
-		// Orgaos
-
-		$.ajax({
-			method: "GET",
-			url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/orgaos",
-			dataType: "json"
-		}).done(function (msg) {
-			console.log("Orgaos: " , msg);
-		});
-
-		// Mesa
-
-		$.ajax({
-			method: "GET",
-			url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/mesa",
-			dataType: "json"
-		}).done(function (msg) {
-			console.log("Mesa: " , msg);
-		});
-
-		// situacoesDeputado
-
-		$.ajax({
-			method: "GET",
-			url: "https://dadosabertos.camara.leg.br/api/v2/deputados/" + id + "/situacoesDeputado",
-			dataType: "json"
-		}).done(function (msg) {
-			console.log("situacoesDeputado: " , msg);
 		});
 	}
 
